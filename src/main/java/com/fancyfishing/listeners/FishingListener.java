@@ -65,6 +65,12 @@ public class FishingListener implements Listener {
                 event.getPlayer().getLocation(),
                 selectedItem.getItem()
             );
+            
+            // Send catch message if set
+            String catchMessage = selectedItem.getCatchMessage();
+            if (catchMessage != null) {
+                event.getPlayer().sendMessage(catchMessage);
+            }
         }
     }
 

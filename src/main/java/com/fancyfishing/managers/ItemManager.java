@@ -36,8 +36,10 @@ public class ItemManager {
             ItemStack item = config.getItemStack("item");
             double chance = config.getDouble("chance", 100.0);
             int catcherLevel = config.getInt("catcherLevel", 1);
-
-            items.put(id, new FishingItem(id, item, chance, catcherLevel));
+            
+            FishingItem fishingItem = new FishingItem(id, item, chance, catcherLevel);
+            fishingItem.setCatchMessage(config.getString("catchMessage", null));
+            items.put(id, fishingItem);
         }
     }
 
@@ -86,6 +88,7 @@ public class ItemManager {
         config.set("item", item.getItem());
         config.set("chance", item.getChance());
         config.set("catcherLevel", item.getCatcherLevel());
+        config.set("catchMessage", item.getCatchMessage());
         
         try {
             config.save(file);

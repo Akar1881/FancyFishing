@@ -83,9 +83,14 @@ public class FancyFishingCommand implements CommandExecutor {
                 return;
             }
 
+            if (mainHand.getType() != Material.FISHING_ROD) {
+                player.sendMessage("§cYou must hold a fishing rod!");
+                return;
+            }
+
             ItemMeta meta = mainHand.getItemMeta();
             List<String> lore = new ArrayList<>();
-            lore.add("§bCatcher Level: " + level);
+            lore.add("§8Catcher Level: " + level);
             meta.setLore(lore);
             mainHand.setItemMeta(meta);
             player.sendMessage("§aCatcher level set to " + level);

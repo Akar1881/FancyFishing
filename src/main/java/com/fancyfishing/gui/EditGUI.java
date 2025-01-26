@@ -71,7 +71,25 @@ public class EditGUI {
             "§eClick §7to change level"
         ));
         levelItem.setItemMeta(levelMeta);
-        gui.setItem(15, levelItem);
+        gui.setItem(13, levelItem);
+
+        // Message modifier (Paper)
+        ItemStack messageItem = new ItemStack(Material.PAPER);
+        ItemMeta messageMeta = messageItem.getItemMeta();
+        messageMeta.setDisplayName("§eCatching Message");
+        String currentMessage = fishingItem.getCatchMessage() != null ? fishingItem.getCatchMessage() : "Null";
+        messageMeta.setLore(Arrays.asList(
+            "§7Message: §f" + currentMessage,
+            "",
+            "§7This is a message when player catch",
+            "§7this item will receive this message.",
+            "§7If message null then didn't receive",
+            "§7the message.",
+            "",
+            "§eClick §7to change message"
+        ));
+        messageItem.setItemMeta(messageMeta);
+        gui.setItem(15, messageItem);
 
         // Back button
         ItemStack back = new ItemStack(Material.BARRIER);

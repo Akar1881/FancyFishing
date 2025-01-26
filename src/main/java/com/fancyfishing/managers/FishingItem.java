@@ -8,12 +8,14 @@ public class FishingItem {
     private final ItemStack item;
     private double chance;
     private int catcherLevel;
+    private String catchMessage;
 
     public FishingItem(UUID id, ItemStack item, double chance, int catcherLevel) {
         this.id = id;
         this.item = item;
         this.chance = chance;
         this.catcherLevel = catcherLevel;
+        this.catchMessage = null;
     }
 
     public UUID getId() {
@@ -38,5 +40,13 @@ public class FishingItem {
 
     public void setCatcherLevel(int catcherLevel) {
         this.catcherLevel = catcherLevel;
+    }
+
+    public String getCatchMessage() {
+        return catchMessage;
+    }
+
+    public void setCatchMessage(String catchMessage) {
+        this.catchMessage = catchMessage;
     }
 }

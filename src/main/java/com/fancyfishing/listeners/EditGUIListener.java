@@ -73,13 +73,23 @@ public class EditGUIListener implements Listener {
                 player.sendMessage("§7Example: §e50 §7for 50% chance, §e0.5 §7for 0.5% chance");
                 break;
 
-            case 15: // Level modifier
+            case 13: // Level modifier
                 awaitingInput.put(player.getUniqueId(), "level");
                 player.closeInventory();
                 player.sendMessage("§e=== Catcher Level Settings ===");
                 player.sendMessage("§7Please type a number between §e1 §7and §e100");
                 player.sendMessage("§7Current level: §e" + item.getCatcherLevel());
                 player.sendMessage("§7This is the minimum fishing rod level required to catch this item");
+                break;
+
+            case 15: // Message modifier
+                awaitingInput.put(player.getUniqueId(), "message");
+                player.closeInventory();
+                player.sendMessage("§e=== Catch Message Settings ===");
+                player.sendMessage("§7Type a message for when a player catches this item");
+                player.sendMessage("§7Color codes allowed (e.g., &8 for dark gray)");
+                player.sendMessage("§7Type 'null' to turn off the message");
+                player.sendMessage("§7Current message: §r" + (item.getCatchMessage() != null ? item.getCatchMessage() : "Null"));
                 break;
 
             case 26: // Back button
@@ -141,6 +151,18 @@ public class EditGUIListener implements Listener {
                     item.setCatcherLevel(level);
                     plugin.getItemManager().updateItem(item);
                     player.sendMessage("§aSuccessfully set minimum catcher level to §e" + level);
+                    break;
+
+                case "message":
+                    if (input.equalsIgnoreCase("null")) {
+                        item.setCatchMessage(null);
+                        player.sendMessage("§aSuccessfully disabled catch message");
+                    } else {
+                        String coloredMessage = input.replace('&', '§');
+                        item.setCatchMessage(coloredMessage);
+                        player.sendMessage("§aSuccessfully set catch message to: " + coloredMessage);
+                    }
+                    plugin.getItemManager().updateItem(item);
                     break;
             }
 
