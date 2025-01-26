@@ -17,11 +17,16 @@ public class GUIListener implements Listener {
     private final FancyFishing plugin;
     private final MainGUI mainGUI;
     private final EditGUI editGUI;
+    private final EditGUIListener editGUIListener;
 
     public GUIListener(FancyFishing plugin) {
         this.plugin = plugin;
+        this.editGUIListener = new EditGUIListener(plugin);
         this.mainGUI = new MainGUI(plugin);
         this.editGUI = new EditGUI(plugin);
+        
+        // Register the EditGUIListener
+        plugin.getServer().getPluginManager().registerEvents(editGUIListener, plugin);
     }
 
     @EventHandler
@@ -79,6 +84,7 @@ public class GUIListener implements Listener {
                 UUID itemId = mainGUI.getItemIdFromSlot(event.getSlot());
                 if (itemId != null) {
                     editGUI.openGUI(player, itemId);
+                    editGUIListener.setEditingItem(player, itemId);
                 }
             } else if (event.isRightClick()) {
                 // Remove item

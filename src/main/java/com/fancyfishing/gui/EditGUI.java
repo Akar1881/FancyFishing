@@ -26,9 +26,6 @@ public class EditGUI {
             return;
         }
 
-        // Set the editing item in EditGUIListener
-        plugin.getEditGUIListener().setEditingItem(player, itemId);
-
         Inventory gui = Bukkit.createInventory(null, 27, "FancyFishing - Edit Item");
 
         // Display current item
