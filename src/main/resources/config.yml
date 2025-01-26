@@ -1,0 +1,12 @@
+# FancyFishing Configuration
+
+# Number of pages in the GUI (each page can hold 45 items)
+pages: 5
+
+# Messages
+messages:
+  item_added: "§aItem successfully added to the system!"
+  item_removed: "§cItem successfully removed from the system!"
+  chance_updated: "§aCatch chance updated!"
+  catcher_level_updated: "§aCatcher level updated!"
+  gui_opened: "§aOpening item management GUI..."
