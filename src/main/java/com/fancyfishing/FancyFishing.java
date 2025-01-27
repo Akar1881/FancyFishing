@@ -2,12 +2,11 @@ package com.fancyfishing;
 
 import com.fancyfishing.commands.FancyFishingCommand;
 import com.fancyfishing.commands.FancyFishingTabCompleter;
-import com.fancyfishing.listeners.FishingListener;
-import com.fancyfishing.listeners.GUIListener;
-import com.fancyfishing.listeners.FRGUIListener;
+import com.fancyfishing.listeners.*;
 import com.fancyfishing.managers.ConfigManager;
 import com.fancyfishing.managers.ItemManager;
 import com.fancyfishing.managers.FishingRodManager;
+import com.fancyfishing.gui.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class FancyFishing extends JavaPlugin {
@@ -15,6 +14,8 @@ public class FancyFishing extends JavaPlugin {
     private ConfigManager configManager;
     private ItemManager itemManager;
     private FishingRodManager fishingRodManager;
+    private FREditGUI frEditGUI;
+    private ManageLoreGUI manageLoreGUI;
 
     @Override
     public void onEnable() {
@@ -25,6 +26,10 @@ public class FancyFishing extends JavaPlugin {
         this.itemManager = new ItemManager(this);
         this.fishingRodManager = new FishingRodManager(this);
         
+        // Initialize GUIs
+        this.manageLoreGUI = new ManageLoreGUI(this);
+        this.frEditGUI = new FREditGUI(this);
+        
         // Register commands and tab completer
         getCommand("ff").setExecutor(new FancyFishingCommand(this));
         getCommand("ff").setTabCompleter(new FancyFishingTabCompleter());
@@ -33,6 +38,7 @@ public class FancyFishing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FishingListener(this), this);
         getServer().getPluginManager().registerEvents(new GUIListener(this), this);
         getServer().getPluginManager().registerEvents(new FRGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new ManageLoreGUIListener(this, manageLoreGUI), this);
         
         // Load configuration and data
         configManager.loadConfig();
@@ -65,5 +71,13 @@ public class FancyFishing extends JavaPlugin {
 
     public FishingRodManager getFishingRodManager() {
         return fishingRodManager;
+    }
+
+    public FREditGUI getFREditGUI() {
+        return frEditGUI;
+    }
+
+    public ManageLoreGUI getManageLoreGUI() {
+        return manageLoreGUI;
     }
 }
