@@ -13,9 +13,11 @@ import java.util.List;
 
 public class FREditGUI {
     private final FancyFishing plugin;
+    private final ManageLoreGUI manageLoreGUI;
 
     public FREditGUI(FancyFishing plugin) {
         this.plugin = plugin;
+        this.manageLoreGUI = new ManageLoreGUI(plugin);
     }
 
     public void openGUI(Player player, String rodName) {
@@ -78,6 +80,28 @@ public class FREditGUI {
         
         enchantItem.setItemMeta(enchantMeta);
         gui.setItem(15, enchantItem);
+
+        // Manage Lores button
+        ItemStack loreItem = new ItemStack(Material.PAPER);
+        ItemMeta loreMeta = loreItem.getItemMeta();
+        loreMeta.setDisplayName("§eManage Lores");
+        loreMeta.setLore(Arrays.asList(
+            "§7Click to open lores GUI",
+            "§7to manage lores"
+        ));
+        loreItem.setItemMeta(loreMeta);
+        gui.setItem(32, loreItem);
+
+        // Get a copy button
+        ItemStack copyButton = new ItemStack(Material.EMERALD);
+        ItemMeta copyMeta = copyButton.getItemMeta();
+        copyMeta.setDisplayName("§aGet a Copy");
+        copyMeta.setLore(Arrays.asList(
+            "§7Click to get a copy of",
+            "§7this fishing rod"
+        ));
+        copyButton.setItemMeta(copyMeta);
+        gui.setItem(30, copyButton);
 
         // Back button
         ItemStack backButton = new ItemStack(Material.BARRIER);

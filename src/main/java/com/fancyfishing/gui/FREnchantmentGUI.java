@@ -9,6 +9,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import emanondev.itemedit.ItemEdit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,9 +17,11 @@ import java.util.List;
 
 public class FREnchantmentGUI {
     private final FancyFishing plugin;
+    private final ItemEdit itemEdit;
 
     public FREnchantmentGUI(FancyFishing plugin) {
         this.plugin = plugin;
+        this.itemEdit = (ItemEdit) Bukkit.getPluginManager().getPlugin("ItemEdit");
     }
 
     public void openGUI(Player player, String rodName) {
@@ -34,7 +37,7 @@ public class FREnchantmentGUI {
         ItemStack luckBook = createEnchantmentBook(
             "Luck of the Sea",
             "Increases your chances of catching valuable items.",
-            3,
+            9,
             rod.getEnchantmentLevel(Enchantment.LUCK)
         );
         gui.setItem(11, luckBook);
@@ -43,7 +46,7 @@ public class FREnchantmentGUI {
         ItemStack lureBook = createEnchantmentBook(
             "Lure",
             "Decreases the time for fish to take the bait.",
-            3,
+            7,
             rod.getEnchantmentLevel(Enchantment.LURE)
         );
         gui.setItem(13, lureBook);
@@ -52,7 +55,7 @@ public class FREnchantmentGUI {
         ItemStack unbreakingBook = createEnchantmentBook(
             "Unbreaking",
             "Increases the durability of your fishing rod.",
-            3,
+            5,
             rod.getEnchantmentLevel(Enchantment.DURABILITY)
         );
         gui.setItem(15, unbreakingBook);
@@ -143,6 +146,7 @@ public class FREnchantmentGUI {
         if (newLevel == 0) {
             rod.removeEnchantment(enchant);
         } else {
+            // Use addUnsafeEnchantment to apply enchantments above vanilla limits
             rod.addUnsafeEnchantment(enchant, newLevel);
         }
     }
@@ -161,6 +165,13 @@ public class FREnchantmentGUI {
     }
 
     public int getMaxLevel(Enchantment enchant) {
-        return 3; // All enchantments now have max level 3
+        if (enchant.equals(Enchantment.LUCK)) {
+            return 9; // Luck of the Sea max level
+        } else if (enchant.equals(Enchantment.LURE)) {
+            return 7; // Lure max level
+        } else if (enchant.equals(Enchantment.DURABILITY)) {
+            return 5; // Unbreaking max level
+        }
+        return 3; // Default for other enchantments
     }
 }

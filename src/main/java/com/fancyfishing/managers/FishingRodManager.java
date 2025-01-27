@@ -118,13 +118,7 @@ public class FishingRodManager {
         List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
         List<String> newLore = new ArrayList<>();
         
-        // Remove old catcher level if it exists
-        lore.removeIf(line -> line.startsWith("§8Catcher Level:"));
-        
-        // Add catcher level at the beginning
-        newLore.add("§8Catcher Level: " + level);
-        
-        // Add enchantment descriptions if they exist
+        // First, collect enchantment descriptions
         List<String> enchantLore = new ArrayList<>();
         for (String line : lore) {
             if (line.startsWith("§7") && (
@@ -135,11 +129,19 @@ public class FishingRodManager {
                 enchantLore.add(line);
             }
         }
-        newLore.addAll(enchantLore);
         
-        // Add remaining lore lines that aren't enchantment descriptions
+        // Add enchantments first
+        if (!enchantLore.isEmpty()) {
+            newLore.addAll(enchantLore);
+            newLore.add(""); // Add spacing after enchantments
+        }
+        
+        // Add catcher level
+        newLore.add("§8Catcher Level: " + level);
+        
+        // Add remaining lore lines that aren't enchantments or catcher level
         for (String line : lore) {
-            if (!enchantLore.contains(line)) {
+            if (!enchantLore.contains(line) && !line.startsWith("§8Catcher Level:")) {
                 newLore.add(line);
             }
         }

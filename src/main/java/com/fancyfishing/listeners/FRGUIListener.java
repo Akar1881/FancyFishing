@@ -185,6 +185,16 @@ public class FRGUIListener implements Listener {
                     player.sendMessage("§cThis rod has custom enchantments. You can only modify the name and catcher level.");
                 }
                 break;
+
+            case 30: // Get a copy
+                ItemStack rodCopy = rod.clone();
+                if (player.getInventory().firstEmpty() == -1) {
+                    player.sendMessage("§cYour inventory is full!");
+                    return;
+                }
+                player.getInventory().addItem(rodCopy);
+                player.sendMessage("§aYou received a copy of the fishing rod!");
+                break;
     
             case 31: // Back button
                 editingRods.remove(player.getUniqueId());
