@@ -1,7 +1,0 @@
-make /ff gui open MainGUI.java 27 slots in slot 11 water bukkit display name PublicFishings open PublicGUI and slot 15 lava bukkit display name PoolsFishing open PoolsGUI what is pools do open a GUI 54 slots handle pools in slot 0 to 44 item paper display name: pool name and lores left clicl to open items gui for current pool right click to delete pool and arrows in slot 45 and 53 for previews and next pages and slot 49 paper show current page liek that Page: <number> and pages can be edited in config.yml like that
-```
-# Number of pages in the GUI (each page can hold 45 items)
-pages: 5
-```
-for both  guis public and pools default 5
-and when left click a pool open PoolsItemsGUI also same 54 slots handle items in current pool slot 0 to 44 and navagtions arrows and paper for page also for pages just that one in config.yml pages: 5 and the emerald for add item to current pool exaccly like public gui but this GUI for selected pool and when left click it open EditItemGUI for edit item for current pool chance to catch and catcher level requirement and message when catch, how to create pools? using worldedit api //wand admin mark area then type /ff pcreate [name] [catcher level requirment] if there was no water or lava in the area say sorry there is no water or lava in this area you marked try again if available say succesfuly pool [name] created, require catcher level to fishing in this pool [catcher level requirement]
