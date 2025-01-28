@@ -1,8 +1,8 @@
 package com.fancyfishing.listeners;
 
 import com.fancyfishing.FancyFishing;
-import com.fancyfishing.gui.MainGUI;
-import com.fancyfishing.gui.EditGUI;
+import com.fancyfishing.gui.PublicGUI;
+import com.fancyfishing.gui.EditItemGUI;
 import com.fancyfishing.managers.FishingItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,19 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class EditGUIListener implements Listener {
+public class EditItemGUIListener implements Listener {
     private final FancyFishing plugin;
     private final Map<UUID, UUID> editingItems;
     private final Map<UUID, String> awaitingInput;
-    private final MainGUI mainGUI;
-    private final EditGUI editGUI;
+    private final PublicGUI publicGUI;
+    private final EditItemGUI editItemGUI;
 
-    public EditGUIListener(FancyFishing plugin) {
+    public EditItemGUIListener(FancyFishing plugin) {
         this.plugin = plugin;
         this.editingItems = new HashMap<>();
         this.awaitingInput = new HashMap<>();
-        this.mainGUI = new MainGUI(plugin);
-        this.editGUI = new EditGUI(plugin);
+        this.publicGUI = new PublicGUI(plugin);
+        this.editItemGUI = new EditItemGUI(plugin);
     }
 
     @EventHandler
@@ -96,7 +96,7 @@ public class EditGUIListener implements Listener {
                 editingItems.remove(player.getUniqueId());
                 player.closeInventory();
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    mainGUI.openGUI(player);
+                    publicGUI.openGUI(player);
                 }, 1L);
                 break;
         }
@@ -168,7 +168,7 @@ public class EditGUIListener implements Listener {
 
             awaitingInput.remove(player.getUniqueId());
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                editGUI.openGUI(player, itemId);
+                editItemGUI.openGUI(player, itemId);
             }, 1L);
 
         } catch (NumberFormatException e) {

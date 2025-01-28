@@ -1,22 +1,24 @@
 package com.fancyfishing.commands;
 
 import com.fancyfishing.FancyFishing;
-import com.fancyfishing.gui.MainGUI;
-import com.fancyfishing.gui.CatchersGUI;
+import com.fancyfishing.gui.PublicGUI;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class FancyFishingCommand implements CommandExecutor {
     private final FancyFishing plugin;
-    private final MainGUI mainGUI;
-    private final CatchersGUI catchersGUI;
+    private final PublicGUI publicGUI;
 
     public FancyFishingCommand(FancyFishing plugin) {
         this.plugin = plugin;
-        this.mainGUI = new MainGUI(plugin);
-        this.catchersGUI = new CatchersGUI(plugin);
+        this.publicGUI = new PublicGUI(plugin);
     }
 
     @Override
@@ -40,10 +42,13 @@ public class FancyFishingCommand implements CommandExecutor {
 
         switch (args[0].toLowerCase()) {
             case "gui":
-                mainGUI.openGUI(player);
+                publicGUI.openGUI(player);
                 break;
             case "catcher":
-                catchersGUI.openGUI(player);
+                handleCatcherCommand(player, args);
+                break;
+            case "ecatcher":
+                handleEditCatcherCommand(player, args);
                 break;
             case "reload":
                 plugin.getConfigManager().loadConfig();
@@ -60,13 +65,82 @@ public class FancyFishingCommand implements CommandExecutor {
         return true;
     }
 
+    private void handleCatcherCommand(Player player, String[] args) {
+        if (args.length != 2) {
+            player.sendMessage("§cUsage: /ff catcher <level>");
+            return;
+        }
+
+        try {
+            int level = Integer.parseInt(args[1]);
+            if (level < 1 || level > 100) {
+                player.sendMessage("§cLevel must be between 1 and 100!");
+                return;
+            }
+
+            ItemStack mainHand = player.getInventory().getItemInMainHand();
+            if (mainHand == null || mainHand.getType() == Material.AIR) {
+                player.sendMessage("§cYou must hold a fishing rod!");
+                return;
+            }
+
+            if (mainHand.getType() != Material.FISHING_ROD) {
+                player.sendMessage("§cYou must hold a fishing rod!");
+                return;
+            }
+
+            plugin.getFishingRodManager().saveFishingRod(mainHand, level);
+            plugin.getFishingRodManager().updateRodLore(mainHand);
+            player.sendMessage("§aCatcher level set to " + level);
+
+        } catch (NumberFormatException e) {
+            player.sendMessage("§cInvalid level number!");
+        }
+    }
+
+    private void handleEditCatcherCommand(Player player, String[] args) {
+        if (args.length != 3) {
+            player.sendMessage("§cUsage: /ff ecatcher <catchername> <newlevel>");
+            return;
+        }
+
+        String rodName = args[1].toLowerCase();
+        try {
+            int newLevel = Integer.parseInt(args[2]);
+            if (newLevel < 1 || newLevel > 100) {
+                player.sendMessage("§cLevel must be between 1 and 100!");
+                return;
+            }
+
+            List<String> rodNames = plugin.getFishingRodManager().getFishingRodNames();
+            if (!rodNames.contains(rodName)) {
+                player.sendMessage("§cFishing rod '" + rodName + "' not found!");
+                return;
+            }
+
+            // Get the original rod and update its level
+            ItemStack originalRod = plugin.getFishingRodManager().getOriginalRod(rodName);
+            if (originalRod != null) {
+                plugin.getFishingRodManager().saveFishingRod(originalRod, newLevel);
+                player.sendMessage("§aUpdated catcher level for '" + rodName + "' to " + newLevel);
+            } else {
+                player.sendMessage("§cError: Could not load original fishing rod data!");
+            }
+
+        } catch (NumberFormatException e) {
+            player.sendMessage("§cInvalid level number!");
+        }
+    }
+
     private void sendHelp(Player player) {
-        player.sendMessage(new String[]{
+        List<String> help = Arrays.asList(
             "§6=== FancyFishing Help ===",
             "§e/ff gui §7- Open the item management GUI",
-            "§e/ff catcher §7- Open the fishing rod management GUI",
+            "§e/ff catcher <level> §7- Set fishing rod catcher level",
+            "§e/ff ecatcher <name> <level> §7- Edit existing catcher level",
             "§e/ff reload §7- Reload the plugin configuration",
             "§e/ff help §7- Show this help message"
-        });
+        );
+        help.forEach(player::sendMessage);
     }
 }

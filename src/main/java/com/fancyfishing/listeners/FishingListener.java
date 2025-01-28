@@ -29,7 +29,7 @@ public class FishingListener implements Listener {
         event.setCancelled(true);
         
         ItemStack rod = event.getPlayer().getInventory().getItemInMainHand();
-        int catcherLevel = getCatcherLevel(rod);
+        int catcherLevel = plugin.getFishingRodManager().getCatcherLevel(rod);
         
         List<FishingItem> possibleItems = new ArrayList<>();
         for (FishingItem item : plugin.getItemManager().getItems().values()) {
@@ -72,21 +72,5 @@ public class FishingListener implements Listener {
                 event.getPlayer().sendMessage(catchMessage);
             }
         }
-    }
-
-    private int getCatcherLevel(ItemStack rod) {
-        if (rod == null || !rod.hasItemMeta() || !rod.getItemMeta().hasDisplayName()) {
-            return 1;
-        }
-
-        String name = rod.getItemMeta().getDisplayName();
-        if (name.startsWith("§bCatcher Level: ")) {
-            try {
-                return Integer.parseInt(name.substring(15));
-            } catch (NumberFormatException e) {
-                return 1;
-            }
-        }
-        return 1;
     }
 }

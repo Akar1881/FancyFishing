@@ -12,10 +12,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class EditGUI {
+public class EditItemGUI {
     private final FancyFishing plugin;
 
-    public EditGUI(FancyFishing plugin) {
+    public EditItemGUI(FancyFishing plugin) {
         this.plugin = plugin;
     }
 

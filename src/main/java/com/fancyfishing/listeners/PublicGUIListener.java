@@ -1,8 +1,8 @@
 package com.fancyfishing.listeners;
 
 import com.fancyfishing.FancyFishing;
-import com.fancyfishing.gui.MainGUI;
-import com.fancyfishing.gui.EditGUI;
+import com.fancyfishing.gui.PublicGUI;
+import com.fancyfishing.gui.EditItemGUI;
 import com.fancyfishing.managers.FishingItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,20 +13,20 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
-public class GUIListener implements Listener {
+public class PublicGUIListener implements Listener {
     private final FancyFishing plugin;
-    private final MainGUI mainGUI;
-    private final EditGUI editGUI;
-    private final EditGUIListener editGUIListener;
+    private final PublicGUI publicGUI;
+    private final EditItemGUI editItemGUI;
+    private final EditItemGUIListener editItemGUIListener;
 
-    public GUIListener(FancyFishing plugin) {
+    public PublicGUIListener(FancyFishing plugin) {
         this.plugin = plugin;
-        this.editGUIListener = new EditGUIListener(plugin);
-        this.mainGUI = new MainGUI(plugin);
-        this.editGUI = new EditGUI(plugin);
+        this.editItemGUIListener = new EditItemGUIListener(plugin);
+        this.publicGUI = new PublicGUI(plugin);
+        this.editItemGUI = new EditItemGUI(plugin);
         
-        // Register the EditGUIListener
-        plugin.getServer().getPluginManager().registerEvents(editGUIListener, plugin);
+        // Register the EditItemGUIListener
+        plugin.getServer().getPluginManager().registerEvents(editItemGUIListener, plugin);
     }
 
     @EventHandler
@@ -73,26 +73,26 @@ public class GUIListener implements Listener {
         String name = clicked.getItemMeta().getDisplayName();
 
         if (name.equals("§ePrevious Page")) {
-            mainGUI.previousPage(player);
+            publicGUI.previousPage(player);
         } else if (name.equals("§eNext Page")) {
-            mainGUI.nextPage(player);
+            publicGUI.nextPage(player);
         } else if (name.equals("§aAdd New Item")) {
-            mainGUI.openAddItemGUI(player);
+            publicGUI.openAddItemGUI(player);
         } else if (event.getSlot() < 45) { // Item slots
             if (event.isLeftClick()) {
                 // Open edit GUI
-                UUID itemId = mainGUI.getItemIdFromSlot(event.getSlot());
+                UUID itemId = publicGUI.getItemIdFromSlot(event.getSlot());
                 if (itemId != null) {
-                    editGUI.openGUI(player, itemId);
-                    editGUIListener.setEditingItem(player, itemId);
+                    editItemGUI.openGUI(player, itemId);
+                    editItemGUIListener.setEditingItem(player, itemId);
                 }
             } else if (event.isRightClick()) {
                 // Remove item
-                UUID itemId = mainGUI.getItemIdFromSlot(event.getSlot());
+                UUID itemId = publicGUI.getItemIdFromSlot(event.getSlot());
                 if (itemId != null) {
                     plugin.getItemManager().removeItem(itemId);
                     player.sendMessage(plugin.getConfigManager().getMessage("item_removed"));
-                    mainGUI.openGUI(player);
+                    publicGUI.openGUI(player);
                 }
             }
         }
@@ -113,7 +113,7 @@ public class GUIListener implements Listener {
                 );
                 plugin.getItemManager().addItem(fishingItem);
                 player.sendMessage(plugin.getConfigManager().getMessage("item_added"));
-                mainGUI.openGUI(player);
+                publicGUI.openGUI(player);
             }
             return;
         }
@@ -122,7 +122,7 @@ public class GUIListener implements Listener {
         if (event.getClickedInventory() == event.getView().getTopInventory() && clicked != null && clicked.hasItemMeta()) {
             String name = clicked.getItemMeta().getDisplayName();
             if (name.equals("§cBack to Main Menu")) {
-                mainGUI.openGUI(player);
+                publicGUI.openGUI(player);
             }
         }
     }

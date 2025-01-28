@@ -1,168 +1,139 @@
 package com.fancyfishing.managers;
 
 import com.fancyfishing.FancyFishing;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FishingRodManager {
     private final FancyFishing plugin;
-    private final File rodsFolder;
-    private final Map<String, ItemStack> fishingRods;
+    private final File fishingRodsFolder;
 
     public FishingRodManager(FancyFishing plugin) {
         this.plugin = plugin;
-        this.rodsFolder = new File(plugin.getDataFolder(), "fishing_rods");
-        this.fishingRods = new HashMap<>();
-        
-        if (!rodsFolder.exists()) {
-            rodsFolder.mkdirs();
+        this.fishingRodsFolder = new File(plugin.getDataFolder(), "fishing_rods");
+        if (!fishingRodsFolder.exists()) {
+            fishingRodsFolder.mkdirs();
         }
     }
 
-    public void loadRods() {
-        fishingRods.clear();
-        File[] files = rodsFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files == null) return;
-
-        for (File file : files) {
-            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-            ItemStack rod = config.getItemStack("rod");
-            if (rod != null) {
-                // Load and set the catcher level from config
-                int catcherLevel = config.getInt("catcher-level", 1);
-                setRodLevel(rod, catcherLevel);
-                
-                fishingRods.put(rod.getItemMeta().getDisplayName(), rod);
-                plugin.getLogger().info("Loaded fishing rod: " + rod.getItemMeta().getDisplayName());
-            }
+    public void saveFishingRod(ItemStack rod, int level) {
+        if (rod == null || rod.getType() != Material.FISHING_ROD) {
+            return;
         }
-    }
 
-    public void saveRod(ItemStack rod) {
-        if (rod == null || !rod.hasItemMeta()) return;
-        
-        String displayName = rod.getItemMeta().getDisplayName();
-        File file = new File(rodsFolder, sanitizeFileName(displayName) + ".yml");
+        String displayName = getFishingRodDisplayName(rod);
+        File file = new File(fishingRodsFolder, displayName + ".yml");
         YamlConfiguration config = new YamlConfiguration();
-        
-        // Save the rod and its catcher level
-        config.set("rod", rod);
-        config.set("catcher-level", getRodLevel(rod));
-        
+
+        // Save the original item
+        ItemStack clonedRod = rod.clone();
+        ItemMeta meta = clonedRod.getItemMeta();
+        if (meta.hasLore()) {
+            List<String> lore = meta.getLore();
+            // Remove existing catcher level lore if exists
+            lore.removeIf(line -> line.startsWith("§7Catcher Level: §e") || line.isEmpty());
+            meta.setLore(lore);
+            clonedRod.setItemMeta(meta);
+        }
+
+        config.set("display_name", displayName);
+        config.set("original_item", clonedRod);
+        config.set("catcher_level", level);
+
         try {
             config.save(file);
-            fishingRods.put(displayName, rod.clone()); // Add to memory cache
             plugin.getLogger().info("Saved fishing rod: " + displayName);
         } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save fishing rod: " + displayName);
+            plugin.getLogger().severe("Failed to save fishing rod " + displayName + ": " + e.getMessage());
         }
     }
 
-    public void removeRod(String displayName) {
-        fishingRods.remove(displayName);
-        File file = new File(rodsFolder, sanitizeFileName(displayName) + ".yml");
-        if (file.exists()) {
-            file.delete();
-        }
-    }
-
-    private String sanitizeFileName(String name) {
-        return name.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
-    }
-
-    public Map<String, ItemStack> getFishingRods() {
-        return new HashMap<>(fishingRods);
-    }
-
-    public ItemStack getRod(String displayName) {
-        return fishingRods.get(displayName);
-    }
-
-    public int getRodLevel(ItemStack rod) {
-        if (rod == null || !rod.hasItemMeta()) {
+    public int getCatcherLevel(ItemStack rod) {
+        if (rod == null || rod.getType() != Material.FISHING_ROD) {
             return 1;
         }
 
-        ItemMeta meta = rod.getItemMeta();
-        if (!meta.hasLore()) {
-            return 1;
-        }
-
-        List<String> lore = meta.getLore();
-        for (String line : lore) {
-            if (line.startsWith("§8Catcher Level:")) {
-                try {
-                    return Integer.parseInt(line.substring(16).trim());
-                } catch (NumberFormatException e) {
-                    return 1;
-                }
-            }
-        }
+        String displayName = getFishingRodDisplayName(rod);
+        File file = new File(fishingRodsFolder, displayName + ".yml");
         
+        if (file.exists()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            return config.getInt("catcher_level", 1);
+        }
+
         return 1;
     }
 
-    public void setRodLevel(ItemStack rod, int level) {
-        if (rod == null || !rod.hasItemMeta()) return;
-        
+    public void updateRodLore(ItemStack rod) {
+        if (rod == null || rod.getType() != Material.FISHING_ROD) {
+            return;
+        }
+
+        int level = getCatcherLevel(rod);
         ItemMeta meta = rod.getItemMeta();
-        List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
-        List<String> newLore = new ArrayList<>();
-        
-        // First, collect enchantment descriptions
-        List<String> enchantLore = new ArrayList<>();
-        for (String line : lore) {
-            if (line.startsWith("§7") && (
-                line.contains("Luck of the Sea") ||
-                line.contains("Lure") ||
-                line.contains("Unbreaking")
-            )) {
-                enchantLore.add(line);
-            }
+        List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+
+        // Remove existing catcher level lore and empty lines at the end
+        while (!lore.isEmpty() && (lore.get(lore.size() - 1).isEmpty() || 
+               lore.get(lore.size() - 1).startsWith("§7Catcher Level: §e"))) {
+            lore.remove(lore.size() - 1);
         }
-        
-        // Add enchantments first
-        if (!enchantLore.isEmpty()) {
-            newLore.addAll(enchantLore);
-            newLore.add(""); // Add spacing after enchantments
+
+        // Add empty line if there are other lores
+        if (!lore.isEmpty()) {
+            lore.add("");
         }
-        
+
         // Add catcher level
-        newLore.add("§8Catcher Level: " + level);
+        lore.add("§7Catcher Level: §e" + level);
         
-        // Add remaining lore lines that aren't enchantments or catcher level
-        for (String line : lore) {
-            if (!enchantLore.contains(line) && !line.startsWith("§8Catcher Level:")) {
-                newLore.add(line);
-            }
-        }
-        
-        meta.setLore(newLore);
+        meta.setLore(lore);
         rod.setItemMeta(meta);
     }
 
-    public boolean isCustomEnchanted(ItemStack rod) {
-        if (rod == null || !rod.hasItemMeta()) return false;
-        
-        // Check if the rod has enchantments but none of them are our standard fishing enchantments
-        if (!rod.getEnchantments().isEmpty()) {
-            boolean hasOnlyStandardEnchants = rod.getEnchantments().keySet().stream()
-                .allMatch(enchant -> 
-                    enchant.equals(Enchantment.LUCK) ||
-                    enchant.equals(Enchantment.LURE) ||
-                    enchant.equals(Enchantment.DURABILITY)
-                );
-            return !hasOnlyStandardEnchants;
+    private String getFishingRodDisplayName(ItemStack rod) {
+        if (rod.hasItemMeta() && rod.getItemMeta().hasDisplayName()) {
+            return rod.getItemMeta().getDisplayName()
+                .replaceAll("§[0-9a-fk-or]", "") // Remove color codes
+                .replaceAll("[^a-zA-Z0-9]", "_") // Replace special chars with underscore
+                .toLowerCase();
         }
-        return false;
+        return "fishing_rod";
+    }
+
+    public void deleteFishingRod(String name) {
+        File file = new File(fishingRodsFolder, name + ".yml");
+        if (file.exists()) {
+            file.delete();
+            plugin.getLogger().info("Deleted fishing rod: " + name);
+        }
+    }
+
+    public List<String> getFishingRodNames() {
+        List<String> names = new ArrayList<>();
+        File[] files = fishingRodsFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files != null) {
+            for (File file : files) {
+                String name = file.getName().replace(".yml", "");
+                names.add(name);
+            }
+        }
+        return names;
+    }
+
+    public ItemStack getOriginalRod(String name) {
+        File file = new File(fishingRodsFolder, name + ".yml");
+        if (file.exists()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            return config.getItemStack("original_item");
+        }
+        return null;
     }
 }
