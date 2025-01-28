@@ -2,10 +2,11 @@ name: FancyFishing
 version: 1.0
 main: com.fancyfishing.FancyFishing
 api-version: 1.13
+depend: [WorldEdit]
 commands:
   ff:
     description: Main command for FancyFishing plugin
-    usage: /<command> [gui|catcher|reload|help]
+    usage: /<command> [gui|pcreate|catcher|reload|help]
     permission: fancyfishing.admin
     permission-message: You don't have permission to use this command!
 

@@ -2,6 +2,7 @@ package com.fancyfishing.gui;
 
 import com.fancyfishing.FancyFishing;
 import com.fancyfishing.managers.FishingItem;
+import com.fancyfishing.managers.Pool;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,8 +20,19 @@ public class EditItemGUI {
         this.plugin = plugin;
     }
 
-    public void openGUI(Player player, UUID itemId) {
-        FishingItem fishingItem = plugin.getItemManager().getItem(itemId);
+    public void openGUI(Player player, UUID itemId, String poolName) {
+        FishingItem fishingItem;
+        if (poolName != null) {
+            Pool pool = plugin.getPoolManager().getPool(poolName);
+            if (pool == null) {
+                player.closeInventory();
+                return;
+            }
+            fishingItem = pool.getItem(itemId);
+        } else {
+            fishingItem = plugin.getItemManager().getItem(itemId);
+        }
+
         if (fishingItem == null) {
             player.closeInventory();
             return;
@@ -94,7 +106,7 @@ public class EditItemGUI {
         // Back button
         ItemStack back = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = back.getItemMeta();
-        backMeta.setDisplayName("§cBack to Main Menu");
+        backMeta.setDisplayName("§cBack");
         back.setItemMeta(backMeta);
         gui.setItem(26, back);
 

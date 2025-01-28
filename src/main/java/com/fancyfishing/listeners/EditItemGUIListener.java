@@ -3,7 +3,9 @@ package com.fancyfishing.listeners;
 import com.fancyfishing.FancyFishing;
 import com.fancyfishing.gui.PublicGUI;
 import com.fancyfishing.gui.EditItemGUI;
+import com.fancyfishing.gui.PoolsItemsGUI;
 import com.fancyfishing.managers.FishingItem;
+import com.fancyfishing.managers.Pool;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +21,7 @@ import java.util.UUID;
 public class EditItemGUIListener implements Listener {
     private final FancyFishing plugin;
     private final Map<UUID, UUID> editingItems;
+    private final Map<UUID, String> editingPools;
     private final Map<UUID, String> awaitingInput;
     private final PublicGUI publicGUI;
     private final EditItemGUI editItemGUI;
@@ -26,6 +29,7 @@ public class EditItemGUIListener implements Listener {
     public EditItemGUIListener(FancyFishing plugin) {
         this.plugin = plugin;
         this.editingItems = new HashMap<>();
+        this.editingPools = new HashMap<>();
         this.awaitingInput = new HashMap<>();
         this.publicGUI = new PublicGUI(plugin);
         this.editItemGUI = new EditItemGUI(plugin);
@@ -46,6 +50,10 @@ public class EditItemGUIListener implements Listener {
 
         event.setCancelled(true);
 
+        if (event.getClickedInventory() != event.getView().getTopInventory()) {
+            return;
+        }
+
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null) {
             return;
@@ -56,7 +64,17 @@ public class EditItemGUIListener implements Listener {
             return;
         }
 
-        FishingItem item = plugin.getItemManager().getItem(itemId);
+        String poolName = editingPools.get(player.getUniqueId());
+        FishingItem item;
+        
+        if (poolName != null) {
+            Pool pool = plugin.getPoolManager().getPool(poolName);
+            if (pool == null) return;
+            item = pool.getItem(itemId);
+        } else {
+            item = plugin.getItemManager().getItem(itemId);
+        }
+
         if (item == null) {
             return;
         }
@@ -94,9 +112,14 @@ public class EditItemGUIListener implements Listener {
 
             case 26: // Back button
                 editingItems.remove(player.getUniqueId());
+                String currentPool = editingPools.remove(player.getUniqueId());
                 player.closeInventory();
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    publicGUI.openGUI(player);
+                    if (currentPool != null) {
+                        new PoolsItemsGUI(plugin, currentPool).openGUI(player);
+                    } else {
+                        publicGUI.openGUI(player);
+                    }
                 }, 1L);
                 break;
         }
@@ -113,16 +136,25 @@ public class EditItemGUIListener implements Listener {
         
         event.setCancelled(true);
         UUID itemId = editingItems.get(player.getUniqueId());
-        if (itemId == null) {
-            awaitingInput.remove(player.getUniqueId());
-            return;
+        String poolName = editingPools.get(player.getUniqueId());
+        
+        FishingItem item;
+        if (poolName != null) {
+            Pool pool = plugin.getPoolManager().getPool(poolName);
+            if (pool == null) {
+                awaitingInput.remove(player.getUniqueId());
+                return;
+            }
+            item = pool.getItem(itemId);
+        } else {
+            item = plugin.getItemManager().getItem(itemId);
         }
 
-        FishingItem item = plugin.getItemManager().getItem(itemId);
         if (item == null) {
             player.sendMessage("§cError: Item not found!");
             awaitingInput.remove(player.getUniqueId());
             editingItems.remove(player.getUniqueId());
+            editingPools.remove(player.getUniqueId());
             return;
         }
 
@@ -138,8 +170,7 @@ public class EditItemGUIListener implements Listener {
                         return;
                     }
                     item.setChance(chance);
-                    plugin.getItemManager().updateItem(item);
-                    player.sendMessage("§aSuccessfully set catch chance to §e" + chance + "%");
+                    player.sendMessage("§aChance updated to " + chance + "%");
                     break;
 
                 case "level":
@@ -149,8 +180,7 @@ public class EditItemGUIListener implements Listener {
                         return;
                     }
                     item.setCatcherLevel(level);
-                    plugin.getItemManager().updateItem(item);
-                    player.sendMessage("§aSuccessfully set minimum catcher level to §e" + level);
+                    player.sendMessage("§aCatcher level updated to " + level);
                     break;
 
                 case "message":
@@ -162,13 +192,23 @@ public class EditItemGUIListener implements Listener {
                         item.setCatchMessage(coloredMessage);
                         player.sendMessage("§aSuccessfully set catch message to: " + coloredMessage);
                     }
-                    plugin.getItemManager().updateItem(item);
                     break;
+            }
+
+            // Save changes
+            if (poolName != null) {
+                Pool pool = plugin.getPoolManager().getPool(poolName);
+                if (pool != null) {
+                    pool.addItem(item);
+                    plugin.getPoolManager().savePool(pool);
+                }
+            } else {
+                plugin.getItemManager().updateItem(item);
             }
 
             awaitingInput.remove(player.getUniqueId());
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                editItemGUI.openGUI(player, itemId);
+                editItemGUI.openGUI(player, itemId, poolName);
             }, 1L);
 
         } catch (NumberFormatException e) {
@@ -185,11 +225,17 @@ public class EditItemGUIListener implements Listener {
             Player player = (Player) event.getPlayer();
             if (!awaitingInput.containsKey(player.getUniqueId())) {
                 editingItems.remove(player.getUniqueId());
+                editingPools.remove(player.getUniqueId());
             }
         }
     }
 
-    public void setEditingItem(Player player, UUID itemId) {
+    public void setEditingItem(Player player, UUID itemId, String poolName) {
         editingItems.put(player.getUniqueId(), itemId);
+        if (poolName != null) {
+            editingPools.put(player.getUniqueId(), poolName);
+        } else {
+            editingPools.remove(player.getUniqueId());
+        }
     }
 }

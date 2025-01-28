@@ -83,8 +83,8 @@ public class PublicGUIListener implements Listener {
                 // Open edit GUI
                 UUID itemId = publicGUI.getItemIdFromSlot(event.getSlot());
                 if (itemId != null) {
-                    editItemGUI.openGUI(player, itemId);
-                    editItemGUIListener.setEditingItem(player, itemId);
+                    editItemGUI.openGUI(player, itemId, null);
+                    editItemGUIListener.setEditingItem(player, itemId, null);
                 }
             } else if (event.isRightClick()) {
                 // Remove item
