@@ -15,6 +15,7 @@ import java.util.UUID;
 
 public class PoolEditItemGUI {
     private final FancyFishing plugin;
+    public static final String GUI_TITLE = "Pool Edit Item"; // Added constant for title
 
     public PoolEditItemGUI(FancyFishing plugin) {
         this.plugin = plugin;
@@ -33,7 +34,7 @@ public class PoolEditItemGUI {
             return;
         }
 
-        Inventory gui = Bukkit.createInventory(null, 27, "Pool - Edit Item");
+        Inventory gui = Bukkit.createInventory(null, 27, GUI_TITLE);
 
         // Display current item
         gui.setItem(4, fishingItem.getItem());
@@ -41,21 +42,12 @@ public class PoolEditItemGUI {
         // Chance modifier (XP Bottle)
         ItemStack chanceItem = new ItemStack(Material.EXPERIENCE_BOTTLE);
         ItemMeta chanceMeta = chanceItem.getItemMeta();
-        chanceMeta.setDisplayName("§eCatch Chance");
+        chanceMeta.setDisplayName("§eChange Catch Chance");
         chanceMeta.setLore(Arrays.asList(
             "§7Current chance: §f" + fishingItem.getChance() + "%",
             "",
-            "§7This chance represents the rarity",
-            "§7of catching this item. Higher chance",
-            "§7means the item is more common to catch.",
-            "",
-            "§7Example:",
-            "§7- 100% = Very common",
-            "§7- 50% = Uncommon",
-            "§7- 10% = Rare",
-            "§7- 1% = Very rare",
-            "",
-            "§eClick §7to change chance"
+            "§7Click to modify the chance",
+            "§7of catching this item"
         ));
         chanceItem.setItemMeta(chanceMeta);
         gui.setItem(11, chanceItem);
@@ -63,19 +55,12 @@ public class PoolEditItemGUI {
         // Level modifier (Flint)
         ItemStack levelItem = new ItemStack(Material.FLINT);
         ItemMeta levelMeta = levelItem.getItemMeta();
-        levelMeta.setDisplayName("§eCatcher Level");
+        levelMeta.setDisplayName("§eChange Catcher Level");
         levelMeta.setLore(Arrays.asList(
             "§7Current level: §f" + fishingItem.getCatcherLevel(),
             "",
-            "§7This level determines the minimum",
-            "§7fishing rod catcher level required",
-            "§7to catch this item.",
-            "",
-            "§7Players can only catch this item",
-            "§7if their fishing rod has a catcher",
-            "§7level equal to or higher than this.",
-            "",
-            "§eClick §7to change level"
+            "§7Click to modify the minimum",
+            "§7catcher level required"
         ));
         levelItem.setItemMeta(levelMeta);
         gui.setItem(13, levelItem);
@@ -83,17 +68,14 @@ public class PoolEditItemGUI {
         // Message modifier (Paper)
         ItemStack messageItem = new ItemStack(Material.PAPER);
         ItemMeta messageMeta = messageItem.getItemMeta();
-        messageMeta.setDisplayName("§eCatching Message");
-        String currentMessage = fishingItem.getCatchMessage() != null ? fishingItem.getCatchMessage() : "Null";
+        messageMeta.setDisplayName("§eChange Catch Message");
+        String currentMessage = fishingItem.getCatchMessage() != null ? fishingItem.getCatchMessage() : "None";
         messageMeta.setLore(Arrays.asList(
-            "§7Message: §f" + currentMessage,
+            "§7Current message:",
+            "§f" + currentMessage,
             "",
-            "§7This is a message when player catch",
-            "§7this item will receive this message.",
-            "§7If message null then didn't receive",
-            "§7the message.",
-            "",
-            "§eClick §7to change message"
+            "§7Click to modify the message",
+            "§7shown when caught"
         ));
         messageItem.setItemMeta(messageMeta);
         gui.setItem(15, messageItem);
@@ -102,6 +84,7 @@ public class PoolEditItemGUI {
         ItemStack back = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = back.getItemMeta();
         backMeta.setDisplayName("§cBack");
+        backMeta.setLore(Arrays.asList("§7Click to return to", "§7the previous menu"));
         back.setItemMeta(backMeta);
         gui.setItem(26, back);
 

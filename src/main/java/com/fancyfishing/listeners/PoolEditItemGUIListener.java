@@ -41,7 +41,7 @@ public class PoolEditItemGUIListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
 
-        if (!title.equals("Pool - Edit Item")) {
+        if (!title.equals(PoolEditItemGUI.GUI_TITLE)) {
             return;
         }
 

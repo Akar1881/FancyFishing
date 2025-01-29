@@ -27,8 +27,10 @@ public class PoolsItemsGUIListener implements Listener {
         this.plugin = plugin;
         this.poolEditItemGUI = new PoolEditItemGUI(plugin);
         this.poolEditItemGUIListener = new PoolEditItemGUIListener(plugin);
-        plugin.getServer().getPluginManager().registerEvents(this.poolEditItemGUIListener, plugin);
         this.addingItemToPool = new HashMap<>();
+        
+        // Register the listener
+        plugin.getServer().getPluginManager().registerEvents(poolEditItemGUIListener, plugin);
     }
 
     @EventHandler
@@ -81,7 +83,7 @@ public class PoolsItemsGUIListener implements Listener {
             UUID itemId = gui.getItemIdFromSlot(slot);
             if (itemId != null) {
                 if (event.isLeftClick()) {
-                    // Open edit GUI and set editing state
+                    // Set editing state and open edit GUI
                     poolEditItemGUIListener.setEditingItem(player, itemId, poolName);
                     poolEditItemGUI.openGUI(player, itemId, poolName);
                 } else if (event.isRightClick()) {

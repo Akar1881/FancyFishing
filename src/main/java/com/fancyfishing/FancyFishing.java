@@ -38,11 +38,13 @@ public class FancyFishing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PoolsGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PoolsItemsGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new EditItemGUIListener(this), this);
-        getServer().getPluginManager().registerEvents(new PoolEditItemGUIListener(this), this);
+        
+        // Note: PoolEditItemGUIListener is now registered by PoolsItemsGUIListener
         
         // Load configuration
         configManager.loadConfig();
         itemManager.loadItems();
+        poolManager.loadPools();
         
         getLogger().info("FancyFishing has been enabled!");
     }
