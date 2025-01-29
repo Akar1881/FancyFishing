@@ -1,7 +1,7 @@
 package com.fancyfishing.listeners;
 
 import com.fancyfishing.FancyFishing;
-import com.fancyfishing.gui.PoolEditItemGUI;
+import com.fancyfishing.gui.EditItemGUI;
 import com.fancyfishing.gui.PoolsGUI;
 import com.fancyfishing.gui.PoolsItemsGUI;
 import com.fancyfishing.managers.FishingItem;
@@ -19,18 +19,13 @@ import java.util.UUID;
 
 public class PoolsItemsGUIListener implements Listener {
     private final FancyFishing plugin;
-    private final PoolEditItemGUI poolEditItemGUI;
-    private final PoolEditItemGUIListener poolEditItemGUIListener;
+    private final EditItemGUI editItemGUI;
     private final Map<UUID, String> addingItemToPool;
 
     public PoolsItemsGUIListener(FancyFishing plugin) {
         this.plugin = plugin;
-        this.poolEditItemGUI = new PoolEditItemGUI(plugin);
-        this.poolEditItemGUIListener = new PoolEditItemGUIListener(plugin);
+        this.editItemGUI = new EditItemGUI(plugin);
         this.addingItemToPool = new HashMap<>();
-        
-        // Register the listener
-        plugin.getServer().getPluginManager().registerEvents(poolEditItemGUIListener, plugin);
     }
 
     @EventHandler
@@ -84,8 +79,8 @@ public class PoolsItemsGUIListener implements Listener {
             if (itemId != null) {
                 if (event.isLeftClick()) {
                     // Set editing state and open edit GUI
-                    poolEditItemGUIListener.setEditingItem(player, itemId, poolName);
-                    poolEditItemGUI.openGUI(player, itemId, poolName);
+                    plugin.getEditItemGUIListener().setEditingItem(player, itemId, poolName);
+                    editItemGUI.openGUI(player, itemId, poolName);
                 } else if (event.isRightClick()) {
                     // Remove item
                     pool.removeItem(itemId);

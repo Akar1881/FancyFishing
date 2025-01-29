@@ -65,15 +65,7 @@ public class EditItemGUIListener implements Listener {
         }
 
         String poolName = editingPools.get(player.getUniqueId());
-        FishingItem item;
-        
-        if (poolName != null) {
-            Pool pool = plugin.getPoolManager().getPool(poolName);
-            if (pool == null) return;
-            item = pool.getItem(itemId);
-        } else {
-            item = plugin.getItemManager().getItem(itemId);
-        }
+        FishingItem item = getFishingItem(itemId, poolName);
 
         if (item == null) {
             return;
@@ -138,17 +130,7 @@ public class EditItemGUIListener implements Listener {
         UUID itemId = editingItems.get(player.getUniqueId());
         String poolName = editingPools.get(player.getUniqueId());
         
-        FishingItem item;
-        if (poolName != null) {
-            Pool pool = plugin.getPoolManager().getPool(poolName);
-            if (pool == null) {
-                awaitingInput.remove(player.getUniqueId());
-                return;
-            }
-            item = pool.getItem(itemId);
-        } else {
-            item = plugin.getItemManager().getItem(itemId);
-        }
+        FishingItem item = getFishingItem(itemId, poolName);
 
         if (item == null) {
             player.sendMessage("§cError: Item not found!");
@@ -195,16 +177,8 @@ public class EditItemGUIListener implements Listener {
                     break;
             }
 
-            // Save changes
-            if (poolName != null) {
-                Pool pool = plugin.getPoolManager().getPool(poolName);
-                if (pool != null) {
-                    pool.addItem(item);
-                    plugin.getPoolManager().savePool(pool);
-                }
-            } else {
-                plugin.getItemManager().updateItem(item);
-            }
+            // Save changes based on whether it's a pool item or public item
+            saveItem(item, poolName);
 
             awaitingInput.remove(player.getUniqueId());
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
@@ -236,6 +210,32 @@ public class EditItemGUIListener implements Listener {
             editingPools.put(player.getUniqueId(), poolName);
         } else {
             editingPools.remove(player.getUniqueId());
+        }
+    }
+
+    private FishingItem getFishingItem(UUID itemId, String poolName) {
+        if (itemId == null) return null;
+        
+        if (poolName != null) {
+            Pool pool = plugin.getPoolManager().getPool(poolName);
+            if (pool == null) return null;
+            return pool.getItem(itemId);
+        } else {
+            return plugin.getItemManager().getItem(itemId);
+        }
+    }
+
+    private void saveItem(FishingItem item, String poolName) {
+        if (item == null) return;
+
+        if (poolName != null) {
+            Pool pool = plugin.getPoolManager().getPool(poolName);
+            if (pool != null) {
+                pool.addItem(item);
+                plugin.getPoolManager().savePool(pool);
+            }
+        } else {
+            plugin.getItemManager().updateItem(item);
         }
     }
 }

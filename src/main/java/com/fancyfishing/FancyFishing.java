@@ -15,6 +15,7 @@ public class FancyFishing extends JavaPlugin {
     private ItemManager itemManager;
     private FishingRodManager fishingRodManager;
     private PoolManager poolManager;
+    private EditItemGUIListener editItemGUIListener;
 
     @Override
     public void onEnable() {
@@ -25,6 +26,9 @@ public class FancyFishing extends JavaPlugin {
         this.itemManager = new ItemManager(this);
         this.fishingRodManager = new FishingRodManager(this);
         this.poolManager = new PoolManager(this);
+        
+        // Initialize EditItemGUIListener as a singleton
+        this.editItemGUIListener = new EditItemGUIListener(this);
         
         // Register commands and tab completer
         getCommand("ff").setExecutor(new FancyFishingCommand(this));
@@ -37,9 +41,7 @@ public class FancyFishing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MainGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PoolsGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PoolsItemsGUIListener(this), this);
-        getServer().getPluginManager().registerEvents(new EditItemGUIListener(this), this);
-        
-        // Note: PoolEditItemGUIListener is now registered by PoolsItemsGUIListener
+        getServer().getPluginManager().registerEvents(editItemGUIListener, this);
         
         // Load configuration
         configManager.loadConfig();
@@ -76,5 +78,9 @@ public class FancyFishing extends JavaPlugin {
 
     public PoolManager getPoolManager() {
         return poolManager;
+    }
+
+    public EditItemGUIListener getEditItemGUIListener() {
+        return editItemGUIListener;
     }
 }
