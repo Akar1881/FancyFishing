@@ -2,7 +2,7 @@ package com.fancyfishing.listeners;
 
 import com.fancyfishing.FancyFishing;
 import com.fancyfishing.gui.PublicGUI;
-import com.fancyfishing.gui.EditItemGUI;
+import com.fancyfishing.gui.PublicEditItemGUI;
 import com.fancyfishing.managers.FishingItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,17 +16,12 @@ import java.util.UUID;
 public class PublicGUIListener implements Listener {
     private final FancyFishing plugin;
     private final PublicGUI publicGUI;
-    private final EditItemGUI editItemGUI;
-    private final EditItemGUIListener editItemGUIListener;
+    private final PublicEditItemGUI editItemGUI;
 
     public PublicGUIListener(FancyFishing plugin) {
         this.plugin = plugin;
-        this.editItemGUIListener = new EditItemGUIListener(plugin);
         this.publicGUI = new PublicGUI(plugin);
-        this.editItemGUI = new EditItemGUI(plugin);
-        
-        // Register the EditItemGUIListener
-        plugin.getServer().getPluginManager().registerEvents(editItemGUIListener, plugin);
+        this.editItemGUI = new PublicEditItemGUI(plugin);
     }
 
     @EventHandler
@@ -83,8 +78,8 @@ public class PublicGUIListener implements Listener {
                 // Open edit GUI
                 UUID itemId = publicGUI.getItemIdFromSlot(event.getSlot());
                 if (itemId != null) {
-                    editItemGUI.openGUI(player, itemId, null);
-                    editItemGUIListener.setEditingItem(player, itemId, null);
+                    plugin.getPublicEditItemGUIListener().setEditingItem(player, itemId);
+                    editItemGUI.openGUI(player, itemId);
                 }
             } else if (event.isRightClick()) {
                 // Remove item

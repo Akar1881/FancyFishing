@@ -13,32 +13,27 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class EditItemGUI {
+public class PoolsEditItemGUI {
     private final FancyFishing plugin;
 
-    public EditItemGUI(FancyFishing plugin) {
+    public PoolsEditItemGUI(FancyFishing plugin) {
         this.plugin = plugin;
     }
 
     public void openGUI(Player player, UUID itemId, String poolName) {
-        FishingItem fishingItem;
-        if (poolName != null) {
-            Pool pool = plugin.getPoolManager().getPool(poolName);
-            if (pool == null) {
-                player.closeInventory();
-                return;
-            }
-            fishingItem = pool.getItem(itemId);
-        } else {
-            fishingItem = plugin.getItemManager().getItem(itemId);
+        Pool pool = plugin.getPoolManager().getPool(poolName);
+        if (pool == null) {
+            player.closeInventory();
+            return;
         }
 
+        FishingItem fishingItem = pool.getItem(itemId);
         if (fishingItem == null) {
             player.closeInventory();
             return;
         }
 
-        Inventory gui = Bukkit.createInventory(null, 27, "FancyFishing - Edit Item");
+        Inventory gui = Bukkit.createInventory(null, 27, "FancyFishing - Edit Pool Item");
 
         // Display current item
         gui.setItem(4, fishingItem.getItem());

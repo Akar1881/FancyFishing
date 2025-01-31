@@ -1,9 +1,9 @@
 package com.fancyfishing.listeners;
 
 import com.fancyfishing.FancyFishing;
-import com.fancyfishing.gui.EditItemGUI;
 import com.fancyfishing.gui.PoolsGUI;
 import com.fancyfishing.gui.PoolsItemsGUI;
+import com.fancyfishing.gui.PoolsEditItemGUI;
 import com.fancyfishing.managers.FishingItem;
 import com.fancyfishing.managers.Pool;
 import org.bukkit.entity.Player;
@@ -19,12 +19,12 @@ import java.util.UUID;
 
 public class PoolsItemsGUIListener implements Listener {
     private final FancyFishing plugin;
-    private final EditItemGUI editItemGUI;
+    private final PoolsEditItemGUI editItemGUI;
     private final Map<UUID, String> addingItemToPool;
 
     public PoolsItemsGUIListener(FancyFishing plugin) {
         this.plugin = plugin;
-        this.editItemGUI = new EditItemGUI(plugin);
+        this.editItemGUI = new PoolsEditItemGUI(plugin);
         this.addingItemToPool = new HashMap<>();
     }
 
@@ -79,7 +79,7 @@ public class PoolsItemsGUIListener implements Listener {
             if (itemId != null) {
                 if (event.isLeftClick()) {
                     // Set editing state and open edit GUI
-                    plugin.getEditItemGUIListener().setEditingItem(player, itemId, poolName);
+                    plugin.getPoolsEditItemGUIListener().setEditingItem(player, itemId, poolName);
                     editItemGUI.openGUI(player, itemId, poolName);
                 } else if (event.isRightClick()) {
                     // Remove item

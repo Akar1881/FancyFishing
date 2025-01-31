@@ -15,7 +15,8 @@ public class FancyFishing extends JavaPlugin {
     private ItemManager itemManager;
     private FishingRodManager fishingRodManager;
     private PoolManager poolManager;
-    private EditItemGUIListener editItemGUIListener;
+    private PublicEditItemGUIListener publicEditItemGUIListener;
+    private PoolsEditItemGUIListener poolsEditItemGUIListener;
 
     @Override
     public void onEnable() {
@@ -27,8 +28,9 @@ public class FancyFishing extends JavaPlugin {
         this.fishingRodManager = new FishingRodManager(this);
         this.poolManager = new PoolManager(this);
         
-        // Initialize EditItemGUIListener as a singleton
-        this.editItemGUIListener = new EditItemGUIListener(this);
+        // Initialize GUI listeners
+        this.publicEditItemGUIListener = new PublicEditItemGUIListener(this);
+        this.poolsEditItemGUIListener = new PoolsEditItemGUIListener(this);
         
         // Register commands and tab completer
         getCommand("ff").setExecutor(new FancyFishingCommand(this));
@@ -41,7 +43,8 @@ public class FancyFishing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MainGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PoolsGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PoolsItemsGUIListener(this), this);
-        getServer().getPluginManager().registerEvents(editItemGUIListener, this);
+        getServer().getPluginManager().registerEvents(publicEditItemGUIListener, this);
+        getServer().getPluginManager().registerEvents(poolsEditItemGUIListener, this);
         
         // Load configuration
         configManager.loadConfig();
@@ -80,7 +83,11 @@ public class FancyFishing extends JavaPlugin {
         return poolManager;
     }
 
-    public EditItemGUIListener getEditItemGUIListener() {
-        return editItemGUIListener;
+    public PublicEditItemGUIListener getPublicEditItemGUIListener() {
+        return publicEditItemGUIListener;
+    }
+
+    public PoolsEditItemGUIListener getPoolsEditItemGUIListener() {
+        return poolsEditItemGUIListener;
     }
 }
